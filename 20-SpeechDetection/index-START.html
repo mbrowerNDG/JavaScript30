@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Speech Detection</title>
+</head>
+<style>
+    html {
+        font-size: 10px;
+    }
+    
+    body {
+        background: #ffc600;
+        font-family: 'helvetica neue';
+        font-weight: 200;
+        font-size: 20px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    
+    .words {
+        width: 100%;
+        max-width: 500px;
+        background: linear-gradient(to bottom, #2a2139 75%, #34294f);
+        margin: 50px auto;
+        border-radius: 5px;
+        box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.1);
+        padding: 1rem 2rem 1rem 5rem;
+        background: -webkit-gradient(linear, 0 0, 0 100%, from(#fc28a8), color-stop(4%, #34294f)) 0 4px;
+        background-size: 100% 3rem;
+        position: relative;
+        line-height: 3rem;
+        min-height: 40vh;
+    }
+    
+    p {
+        margin: 0 0 3rem;
+        color: #03edf9;
+        text-shadow: 0 0 2px #001716, 0 0 3px #03edf975, 0 0 5px #03edf975, 0 0 8px #a4c0c275;
+    }
+    
+    .words:before {
+        content: '';
+        position: absolute;
+        width: 4px;
+        top: 0;
+        left: 30px;
+        bottom: 0;
+        border: 1px solid;
+        border-color: transparent #fdfdfd;
+        text-shadow: 0 0 2px #001716, 0 0 3px #03edf975, 0 0 5px #03edf975, 0 0 8px #03edf975;
+    }
+    /* .container {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        padding: 4em;
+        margin: auto
+    } */
+    
+    .button-row {
+        width: 100%;
+        max-width: 700px;
+        display: flex;
+        justify-content: space-evenly;
+        margin: 100px auto 0;
+    }
+    
+    button {
+        line-height: 35px;
+        background-color: transparent;
+        background: linear-gradient(to bottom, #2a2139 75%, #34294f);
+        width: 100%;
+        max-width: 150px;
+        color: #fdfdfd;
+        text-shadow: 0 0 2px #001716, 0 0 3px #03edf975, 0 0 5px #03edf975, 0 0 8px #03edf975;
+        box-shadow: inset 0 -5px 25px #fc28a825;
+        font-size: 15px;
+        border: none;
+        border-radius: 4px;
+        font-size: 20px;
+        text-transform: uppercase
+    }
+</style>
+
+
+
+
+
+</style>
+
+<body>
+
+    <div class="container">
+        <div class="button-row">
+            <button class="record">Record</button>
+            <button class="stop">Stop</button>
+            <button class="play-back">Play Back</button>
+            <button class="clearAll">Clear All</button>
+        </div>
+
+        <div class="words" contenteditable>
+        </div>
+    </div>
+
+
+
+    <script>
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const stop = document.querySelector('.stop');
+        const recognition = new SpeechRecognition();
+        const startRecord = document.querySelector('.record');
+        const play = document.querySelector('.play-back');
+        const clear = document.querySelector('.clearAll');
+
+
+        recognition.interimResults = true;
+        let p = document.createElement('p');
+        const words = document.querySelector('.words');
+        words.appendChild(p);
+        let record = [];
+
+        function recordStart(e) {
+            recognition.start();
+            recognition.addEventListener('end', recognition.start);
+            recognition.addEventListener('result', e => {
+                const transcript = Array.from(e.results)
+                    .map(result => result[0])
+                    .map(result => result.transcript)
+                    .join('')
+
+                p.textContent = transcript;
+                if (e.results[0].isFinal) {
+                    p = document.createElement('p');
+                    words.appendChild(p);
+                    record.push(transcript)
+                    console.log(record);
+                }
+
+                // if (transcript.includes('play that back for me')) {
+
+                //     playThatBack();
+
+
+                // } else if (transcript.includes('delete my records')) {
+                //     recognition.stop();
+                //     clearRecords();
+                // }
+            });
+
+        }
+
+        function stopRecording() {
+            // console.log(e);
+            const msg = "Recording Stopped"
+            recognition.addEventListener('end', recognition.abort);
+            recognition.abort();
+            recognition.stop();
+            p.textContent = msg;
+            words.appendChild(p);
+        }
+
+        function playThatBack() {
+
+            // record.pop();
+            console.log(record);
+            const robot = new SpeechSynthesisUtterance(`${record}`);
+            window.speechSynthesis.speak(robot);
+
+        }
+
+        function clearRecords() {
+            record = [];
+            const lists = document.querySelectorAll('p')
+            console.log(lists)
+            lists.forEach(list => {
+                console.log(list)
+                    // list.innerText(' ') find out why this does not work
+                list.setAttribute('style', 'display:none;');
+            })
+            return record;
+
+        }
+        stop.addEventListener('click', stopRecording)
+        clear.addEventListener('click', clearRecords);
+        play.addEventListener('click', playThatBack)
+        startRecord.addEventListener('click', recordStart);
+    </script>
+
+
+
+
+</body>
+
+</html>
