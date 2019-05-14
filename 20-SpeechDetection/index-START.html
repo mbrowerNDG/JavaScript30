@@ -109,13 +109,17 @@
 
     <script>
         window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        const voices = speechSynthesis.getVoices().forEach(function(voice) {
+            console.log(voice.name, voice.default ? voice.default : '', 'why is this not running?');
+        });
         const stop = document.querySelector('.stop');
         const recognition = new SpeechRecognition();
         const startRecord = document.querySelector('.record');
         const play = document.querySelector('.play-back');
         const clear = document.querySelector('.clearAll');
 
-
+        let h1 = document.createElement('h1');
         recognition.interimResults = true;
         let p = document.createElement('p');
         const words = document.querySelector('.words');
@@ -153,36 +157,66 @@
         }
 
         function stopRecording() {
+            recognition.removeEventListener('end', recognition.start);
+            recognition.abort();
             // console.log(e);
             const msg = "Recording Stopped"
-            recognition.addEventListener('end', recognition.abort);
-            recognition.abort();
-            recognition.stop();
+
             p.textContent = msg;
             words.appendChild(p);
+
         }
 
         function playThatBack() {
 
-            // record.pop();
+
+
+            const placehold = 'this is a test for what I want you to say outloud please thankyou'
+                // record.pop();
             console.log(record);
-            const robot = new SpeechSynthesisUtterance(`${record}`);
-            window.speechSynthesis.speak(robot);
+            if (record.length >= 1) {
+                let robot = new SpeechSynthesisUtterance(`${record}`);
+
+            } else {
+                robot = new SpeechSynthesisUtterance(`${placehold}`);
+
+            }
+            console.log(voices);
+            speechSynthesis.speak(robot);
 
         }
 
         function clearRecords() {
             record = [];
             const lists = document.querySelectorAll('p')
-            console.log(lists)
             lists.forEach(list => {
-                console.log(list)
-                    // list.innerText(' ') find out why this does not work
+                // list.innerText(' ') find out why this does not work
                 list.setAttribute('style', 'display:none;');
             })
             return record;
 
         }
+
+        function onStart(e) {
+            console.log(e)
+        }
+
+        function onEnd(e) {
+            console.log(e)
+        }
+
+        function onError(e) {
+            console.log(e);
+        }
+
+        function onStop(e) {
+            console.log(e);
+        }
+
+
+        recognition.addEventListener('start', onStart)
+        recognition.addEventListener('end', onEnd);
+        recognition.addEventListener('abort', onError);
         stop.addEventListener('click', stopRecording)
         clear.addEventListener('click', clearRecords);
         play.addEventListener('click', playThatBack)
