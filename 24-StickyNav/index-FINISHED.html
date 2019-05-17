@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Untitled Document</title>
+
+    <style>
+        html {
+            height: 100vh;
+            -ms-touch-action: none
+        }
+        
+        * {
+            -ms-touch-action: none;
+            -ms-content-zooming: none
+        }
+        
+        img {
+            display: block
+        }
+        
+        html {
+            height: 100vh;
+            -ms-touch-action: none
+        }
+        
+        body {
+            background-color: #fff;
+            font-family: HelveticaNeue, Helvetica, sans-serif;
+            color: #5A5A5D;
+            font-size: 24px;
+            line-height: 1.2em;
+            height: 100vh
+        }
+        
+        #screensaver {
+            position: fixed;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: 99999;
+            background-color: black;
+            background-size: cover;
+            display: none
+        }
+        
+        #screensaver {
+            background-image: url(siteassets/images/ScreenSaverGraphic.png);
+            background-size: cover;
+            background-repeat: 0;
+        }
+        
+        .show {
+            opacity: 1;
+            transition: opacity(0.075, 0.82, 0.165, 1);
+        }
+        
+        .hidden {
+            opacity: 0;
+            transition: opacity(0.075, 0.82, 0.165, 1);
+        }
+    </style>
+
+</head>
+
+<body id="screensaver">
+    <iframe class="hidden" src="//thebdxinteractive.com/Cloud/BrookfieldResidential/dsp/" height="1024px" width="100%" frameborder="0" allowfullscreen style="border:0">
+</body>
+<script>
+var screensaver = document.querySelector('#screensaver');
+var iframe = document.querySelector('iframe');
+
+function hideScreensaver() {
+ document.body.style.background = 'unset';
+ iframe.classList.remove('hidden');
+ iframe.classList.add('show');
+}
+screensaver.addEventListener('click', hideScreensaver)
+</script>
+
+
+</html>
