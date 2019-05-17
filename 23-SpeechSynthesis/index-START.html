@@ -39,9 +39,9 @@
         const stopButton = document.querySelector('#stop');
         msg.text = document.querySelector('[name="text"]').value;
 
-
         function populateVoices() {
-            voices = this.getVoices();
+            voices = this.getVoices()
+                .filter(voice => voice.lang.includes('en'));
             voicesDropdown.innerHTML = voices
                 .filter(voice => voice.lang.includes('en'))
                 .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
