@@ -11,7 +11,7 @@
     }
     
     body {
-        background: #ffc600;
+        background: #ddd;
         font-family: 'helvetica neue';
         font-weight: 200;
         font-size: 20px;
@@ -24,7 +24,7 @@
         width: 100%;
         max-width: 500px;
         background: linear-gradient(to bottom, #2a2139 75%, #34294f);
-        margin: 50px auto;
+        margin: 50px auto 0px;
         border-radius: 5px;
         box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.1);
         padding: 1rem 2rem 1rem 5rem;
@@ -32,7 +32,7 @@
         background-size: 100% 3rem;
         position: relative;
         line-height: 3rem;
-        min-height: 40vh;
+        min-height: 30vh;
     }
     
     p {
@@ -69,6 +69,7 @@
     }
     
     button {
+        position: relative;
         line-height: 35px;
         background-color: transparent;
         background: linear-gradient(to bottom, #2a2139 75%, #34294f);
@@ -76,12 +77,61 @@
         max-width: 150px;
         color: #fdfdfd;
         text-shadow: 0 0 2px #001716, 0 0 3px #03edf975, 0 0 5px #03edf975, 0 0 8px #03edf975;
-        box-shadow: inset 0 -5px 25px #fc28a825;
         font-size: 15px;
         border: none;
-        border-radius: 4px;
+        border-radius: 15px;
         font-size: 20px;
-        text-transform: uppercase
+        text-transform: uppercase;
+        cursor: pointer;
+        padding: 0.8em 0em;
+        box-shadow: 0px 10px 10px rgb(52, 41, 79, 0.4);
+    }
+    
+    .light {
+        background: linear-gradient(135deg, #2a2139 0%, #2a2139 40%, #ffffff 50%, rgb(52, 41, 79) 60%, #34294f 100%);
+        background-repeat: no-repeat;
+        background-position: 0px;
+        background-size: 400%;
+    }
+    
+    .light:hover {
+        animation: light 1s;
+        -webkit-animation: light 1s;
+    }
+    
+    @keyframes light {
+        0% {
+            background-position: -400px;
+        }
+        100% {
+            background-position: 0px;
+        }
+    }
+    
+    @-webkit-keyframes light {
+        0% {
+            background-position: -400px;
+        }
+        100% {
+            background-position: 0px;
+        }
+    }
+    
+    .options-container {
+        padding: 1em;
+        display: flex;
+        flex-direction: column;
+        max-width: 400px;
+        margin: auto;
+    }
+    
+    select {
+        padding: 1em;
+        margin-bottom: 2em;
+    }
+    
+    label {
+        padding: .5em;
     }
 </style>
 
@@ -95,14 +145,28 @@
 
     <div class="container">
         <div class="button-row">
-            <button class="record">Record</button>
-            <button class="stop">Stop</button>
-            <button class="play-back">Play Back</button>
-            <button class="clearAll">Clear All</button>
+            <button id='disable' data-value="1" class="record light">Record</button>
+            <button class="stop light toggle-record" data-value="2">Stop</button>
+            <button class="play-back toggle-record light" data-value="3">Play Back</button>
+            <button class="clearAll toggle-record light" data-value="4">Clear All</button>
         </div>
 
         <div class="words" contenteditable>
         </div>
+        <div class="options-container">
+            <select name="voice" id="voices">
+                        <option value="">Select A Voice</option>
+                      </select>
+
+            <label for="rate">Rate:</label>
+            <input name="rate" type="range" min="0" max="3" value="1" step="0.1">
+
+            <label for="pitch">Pitch:</label>
+
+            <input name="pitch" type="range" min="0" max="2" step="0.1">
+        </div>
+
+
     </div>
 
 
@@ -114,29 +178,32 @@
         const startRecord = document.querySelector('.record');
         const play = document.querySelector('.play-back');
         const clear = document.querySelector('.clearAll');
-
-
-        recognition.interimResults = true;
+        const voicesDropdown = document.querySelector('[name="voice"]');
+        const options = document.querySelectorAll('[type="range"], [name="text"]');
+        console.log(startRecord.disabled);
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
         let p = document.createElement('p');
         const words = document.querySelector('.words');
         words.appendChild(p);
         let record = [];
+        const msg = new SpeechSynthesisUtterance();
+        let voices = [];
+        startRecord.disabled = false;
 
         function recordStart(e) {
-            recognition.start();
+            console.log(startRecord);
             recognition.addEventListener('end', recognition.start);
             recognition.addEventListener('result', e => {
                 const transcript = Array.from(e.results)
                     .map(result => result[0])
                     .map(result => result.transcript)
                     .join('')
-
                 p.textContent = transcript;
                 if (e.results[0].isFinal) {
                     p = document.createElement('p');
                     words.appendChild(p);
-                    record.push(transcript)
-                    console.log(record);
+                    record.push(transcript);
                 }
 
                 // if (transcript.includes('play that back for me')) {
@@ -149,26 +216,35 @@
                 //     clearRecords();
                 // }
             });
-
+            recognition.start();
         }
 
-        function stopRecording() {
-            // console.log(e);
-            const msg = "Recording Stopped"
-            recognition.addEventListener('end', recognition.abort);
+        function stopRecording(e) {
+
+            if (startRecord.disabled) {
+                toggleRecord();
+            }
+            const stopMessage = "Recording Stopped"
             recognition.abort();
-            recognition.stop();
-            p.textContent = msg;
+            recognition.removeEventListener('end', recognition.start);
+            p.textContent = stopMessage;
             words.appendChild(p);
         }
 
         function playThatBack() {
 
-            // record.pop();
-            console.log(record);
-            const robot = new SpeechSynthesisUtterance(`${record}`);
-            window.speechSynthesis.speak(robot);
+            stopRecording();
+            if (record == []) {
+                msg.text = 'I am sorry, but you have not said anything for me to repeat back to you'
+                speechSynthesis.speak(msg);
+            } else {
+                msg.text = record
+                speechSynthesis.speak(msg);
+            }
 
+            if (startRecord.disabled) {
+                toggleRecord();
+            }
         }
 
         function clearRecords() {
@@ -180,9 +256,43 @@
                     // list.innerText(' ') find out why this does not work
                 list.setAttribute('style', 'display:none;');
             })
-            return record;
+
 
         }
+
+        function toggleRecord() {
+            startRecord.disabled = !startRecord.disabled;
+            if (startRecord.disabled) {
+                startRecord.innerHTML = 'Recording...';
+                startRecord.setAttribute('style', 'opacity: .25; transition: opacity 1s; transition-timing-function: ease-out;');
+                console.log('is this even running?', startRecord.disabled)
+            } else {
+                startRecord.innerHTML = 'Record'
+                startRecord.setAttribute('style', 'opacity: 1; transition: opacity 1s; transition-timing-function: ease-in;')
+            }
+        }
+
+        function populateVoices() {
+            voices = this.getVoices();
+
+            voicesDropdown.innerHTML = voices
+                .map(voice => `<option value="${voice.name}">${voice.name}(${voice.lang})</option>`)
+                .join('');
+        }
+
+        function setVoice() {
+            msg.voice = voices.find(voice => voice.name === this.value);
+        }
+
+        function setOption() {
+            msg[this.name] = this.value;
+
+        }
+
+        speechSynthesis.addEventListener('voiceschanged', populateVoices)
+        voicesDropdown.addEventListener('change', setVoice);
+        options.forEach(option => option.addEventListener('change', setOption));
+        startRecord.addEventListener('click', toggleRecord);
         stop.addEventListener('click', stopRecording)
         clear.addEventListener('click', clearRecords);
         play.addEventListener('click', playThatBack)
