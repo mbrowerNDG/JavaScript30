@@ -3,7 +3,7 @@
         "suppressShowKeyBindingsNotice": true
     },
     "dart.flutterSdkPath": "/Users/Matthew/Documents/flutter_sandBox/flutter",
-    "workbench.iconTheme": "vscode-icons",
+    "workbench.iconTheme": "material-icon-theme",
     "[html]": {
         "editor.defaultFormatter": "vscode.html-language-features"
     },
@@ -13,10 +13,10 @@
     "editor.fontFamily": "'Fira code'",
     "editor.fontLigatures": true,
     "vscode_custom_css.policy": true,
-    "vscode_custom_css.imports": ["file:///Users/Matthew/code-main/themecss/synthwave84.css"],
+    "vscode_custom_css.imports": ["file:///Users/matthewbrower/code/synthwave84.css"],
         "editor.fontSize": 15,
 
         "workbench.settings.editor": "json",
         "workbench.colorTheme": "SynthWave '84"
-   
+
 }
