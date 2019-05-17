@@ -92,11 +92,14 @@
         background-repeat: no-repeat;
         background-position: 0px;
         background-size: 400%;
+        transform: scale(0.98);
+        transition: transform 0.5s;
     }
     
     .light:hover {
         animation: light 1s;
         -webkit-animation: light 1s;
+        transform: scale(1);
     }
     
     @keyframes light {
@@ -193,6 +196,24 @@
 
         startRecord.disabled = false;
 
+
+        function populateVoices() {
+            voices = this.getVoices();
+            voicesDropdown.innerHTML = voices
+                .filter(voice => voice.lang.includes('en'))
+                .map(voice => `<option value="${voice.name}">${voice.name}(${voice.lang})</option>`)
+                .join('');
+        }
+
+        function setVoice() {
+            msg.voice = voices.find(voice => voice.name === this.value);
+        }
+
+        function setOption() {
+            msg[this.name] = this.value;
+
+        }
+
         function recordStart(e) {
             console.log(startRecord);
             recognition.addEventListener('end', recognition.start);
@@ -273,22 +294,7 @@
             }
         }
 
-        function populateVoices() {
-            voices = this.getVoices();
 
-            voicesDropdown.innerHTML = voices
-                .map(voice => `<option value="${voice.name}">${voice.name}(${voice.lang})</option>`)
-                .join('');
-        }
-
-        function setVoice() {
-            msg.voice = voices.find(voice => voice.name === this.value);
-        }
-
-        function setOption() {
-            msg[this.name] = this.value;
-
-        }
 
         speechSynthesis.addEventListener('voiceschanged', populateVoices)
         voicesDropdown.addEventListener('change', setVoice);
